@@ -3,7 +3,8 @@
     <img alt="Vue logo" src="../assets/logo.png" />
     <HelloWorld msg="Welcome to Your Vue.js App" />
     <button v-on:click="this.pushTest">Push Test</button>
-    a;woeijf;owaj;foawefja;oiwjfajwif
+    <button v-on:click="this.getDeviceToken">Print Token</button>
+    <textarea readonly name="test" id="test" cols="30" rows="10"></textarea>
   </div>
 </template>
 
@@ -14,38 +15,46 @@ import HelloWorld from "@/components/HelloWorld.vue";
 export default {
   name: "Home",
   components: {
-    HelloWorld,
+    HelloWorld
   },
   methods: {
     pushTest: function() {
-      var key =
-        "AAAAkpndJK4:APA91bFTmu8aMpzCRa7vJY7aadmPIgqew-5br-JNVAziYTzT2NypR4C-pxj53QqTkvW74OY5m1tJJ9BWtiIanSOFFYlIGXkuixyfzvGgCIfqXri33iJppJXNY5l9bws630Tv9BCT11xS";
-      var to = "1:629646632110:web:d29dc6c2c9631b7cebb93f";
-      var notification = {
-        title: "Portugal vs. Denmark",
-        body: "5 to 1",
-        icon: "firebase-logo.png",
-        click_action: "http://localhost:8081",
+      const FCM_SERVER_KEY =
+        "AAAAkpndJK4:APA91bGFXlmaGFBOD3xospwsvIegwN8D0hqer1PheZ3w8PUg3hYkdaecivo2sZBsl5yCfda0kfcMxQT1CCLhtlbkTPvRNHr_k-qhC0c7KB-pTdgHIu-m_Vbr4usjco_xb4oOnz4rsIJj";
+      const TO = localStorage.getItem("DEVICE_TOKEN");
+      let body = {
+        to: TO,
+        priority: "high",
+        notification: {
+          body: "Hi! Nice to meet you",
+          title: "Hi, HI, HIHIHIHIHIHI",
+          click_action: "https://vue-pwa-cc9dd.web.app"
+        },
+        data: {
+          a: "1",
+          b: "2"
+        }
       };
 
       fetch("https://fcm.googleapis.com/fcm/send", {
         method: "POST",
         headers: {
-          Authorization: "key=" + key,
-          "Content-Type": "application/json",
+          Authorization: "key=" + FCM_SERVER_KEY,
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify({
-          notification: notification,
-          to: to,
-        }),
+        body: JSON.stringify(body)
       })
-        .then(function(response) {
+        .then(response => {
           console.log(response);
         })
-        .catch(function(error) {
+        .catch(error => {
           console.error(error);
         });
     },
-  },
+    getDeviceToken: function() {
+      let textarea = document.getElementById("test");
+      textarea.innerText = localStorage.getItem("DEVICE_TOKEN");
+    }
+  }
 };
 </script>
