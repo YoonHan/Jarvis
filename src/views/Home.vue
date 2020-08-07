@@ -15,7 +15,7 @@ import HelloWorld from "@/components/HelloWorld.vue";
 export default {
   name: "Home",
   components: {
-    HelloWorld
+    HelloWorld,
   },
   methods: {
     pushTest: function() {
@@ -28,33 +28,33 @@ export default {
         notification: {
           body: "Hi! Nice to meet you",
           title: "Hi, HI, HIHIHIHIHIHI",
-          click_action: "https://vue-pwa-cc9dd.web.app"
+          click_action: "https://vue-pwa-cc9dd.web.app",
         },
         data: {
           a: "1",
-          b: "2"
-        }
+          b: "2",
+        },
       };
 
       fetch("https://fcm.googleapis.com/fcm/send", {
         method: "POST",
         headers: {
           Authorization: "key=" + FCM_SERVER_KEY,
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(body)
+        body: JSON.stringify(body),
       })
-        .then(response => {
+        .then((response) => {
           console.log(response);
         })
-        .catch(error => {
+        .catch((error) => {
           console.error(error);
         });
     },
     getDeviceToken: function() {
       let textarea = document.getElementById("test");
       textarea.innerText = localStorage.getItem("DEVICE_TOKEN");
-    }
-  }
+    },
+  },
 };
 </script>
