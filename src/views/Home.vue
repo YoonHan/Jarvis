@@ -1,7 +1,9 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png" />
-    <HelloWorld msg="Welcome to Your Vue.js App" />
+    <nav id="top">
+      <p class="date">{{ nowDate }}</p>
+    </nav>
+    <HelloWorld msg="" />
     <button v-on:click="this.pushTest">Push Test</button>
     <button v-on:click="this.getDeviceToken">Print Token</button>
     <textarea readonly name="test" id="test" cols="30" rows="10"></textarea>
@@ -11,11 +13,22 @@
 <script>
 // @ is an alias to /src
 import HelloWorld from "@/components/HelloWorld.vue";
+import moment from "moment";
 
 export default {
   name: "Home",
   components: {
     HelloWorld,
+  },
+  data: function() {
+    return {
+      nowDate: "",
+    };
+  },
+  created: function() {
+    setInterval(() => {
+      this.nowDate = moment().format("M[월] D[일][(]ddd[)] h:mm:ss A");
+    }, 1000);
   },
   methods: {
     pushTest: function() {
@@ -58,3 +71,15 @@ export default {
   },
 };
 </script>
+
+<style scoped lang="scss">
+#top {
+  padding: 10px;
+
+  p.date {
+    color: white;
+    text-align: left;
+    margin: 0;
+  }
+}
+</style>

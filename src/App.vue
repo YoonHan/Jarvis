@@ -1,31 +1,32 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link>
-    </div>
     <router-view />
   </div>
 </template>
 
 <style lang="scss">
+@import "./assets/common.scss";
+html,
+body {
+  width: 100vw;
+  height: 100vh;
+}
+
+body {
+  margin: 0;
+  background: rgb(238, 174, 202);
+  background: radial-gradient(
+    circle at top right,
+    rgba(238, 174, 202, 1) 0%,
+    rgba(148, 187, 233, 1) 100%
+  );
+  font-family: "Do Hyeon", sans-serif !important;
+}
+
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-}
-
-#nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
 }
 </style>
