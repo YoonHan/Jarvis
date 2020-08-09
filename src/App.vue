@@ -14,6 +14,8 @@ body {
 
 body {
   margin: 0;
+  padding: 15px;
+  box-sizing: border-box;
   background: rgb(238, 174, 202);
   background: radial-gradient(
     circle at top right,
