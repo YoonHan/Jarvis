@@ -1,22 +1,24 @@
 <template>
   <div class="home">
     <nav id="top">
-      <p class="date">{{ nowDate }}</p>
+      <p class="date">{{ nowDate ? nowDate : "불러오는 중..."}}</p>
       <p class="location">
         <i class="fas fa-location-arrow"></i>
-        {{ nowLocation }}
+        {{ nowLocation ? nowLocation : "불러오는 중..." }}
       </p>
     </nav>
     <Weather v-bind:weatherData="weatherData" />
-    <button v-on:click="this.pushTest">Push Test</button>
-    <button v-on:click="this.getDeviceToken">Print Token</button>
-    <textarea readonly name="test" id="test" cols="30" rows="10"></textarea>
+    <Transport v-bind:transportData="transportData" />
+    <!-- <button v-on:click="this.pushTest">Push Test</button> -->
+    <!-- <button v-on:click="this.getDeviceToken">Print Token</button> -->
+    <!-- <textarea readonly name="test" id="test" cols="30" rows="10"></textarea> -->
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
 import Weather from "@/components/Weather.vue";
+import Transport from "@/components/Transport.vue";
 import moment from "moment";
 
 const init = function(component) {
@@ -33,6 +35,7 @@ const init = function(component) {
       position => {
         component.longitude = position.coords.longitude;
         component.latitude = position.coords.latitude;
+        alert(`${component.longitude} ${component.latitude}`);
         let params = {
           longitude: component.longitude,
           latitude: component.latitude
@@ -66,12 +69,33 @@ const init = function(component) {
             return response.json();
           })
           .then(data => {
-            console.log(data);
             component.weatherData = data;
           })
           .catch(err => {
             console.log(err);
-            component.weatherError = "날씨 정보를 불러올 수 없습니다";
+          });
+
+        // Get Transport information
+        params = {
+          longitude: component.longitude,
+          latitude: component.latitude
+        };
+
+        query =
+          "?" +
+          Object.keys(params)
+            .map(k => k + "=" + params[k])
+            .join("&");
+
+        fetch(URL + "users/transport" + query, { method: "GET" })
+          .then(response => {
+            return response.json();
+          })
+          .then(data => {
+            component.transportData = data;
+          })
+          .catch(err => {
+            console.log(err);
           });
       },
       err => {
@@ -127,15 +151,17 @@ const getDeviceToken = function() {
 export default {
   name: "Home",
   components: {
-    Weather
+    Weather,
+    Transport
   },
   data: function() {
     return {
-      nowDate: "불러오는 중...",
-      nowLocation: "불러오는 중...",
+      nowDate: "",
+      nowLocation: "",
       latitude: "",
       longitude: "",
-      weatherData: null
+      weatherData: null,
+      transportData: null
     };
   },
   created: function() {
