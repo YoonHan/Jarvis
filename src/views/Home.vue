@@ -35,7 +35,6 @@ const init = function(component) {
       position => {
         component.longitude = position.coords.longitude;
         component.latitude = position.coords.latitude;
-        alert(`${component.longitude} ${component.latitude}`);
         let params = {
           longitude: component.longitude,
           latitude: component.latitude
