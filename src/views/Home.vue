@@ -76,18 +76,24 @@ const init = function(component) {
           });
 
         // Get Transport information
+        const TRANS_API_URL = "https://api.odsay.com/v1/api";
+        const PATH = "/pointBusStation";
         params = {
-          longitude: component.longitude,
-          latitude: component.latitude
+          lang: 0,
+          x: component.longitude,
+          y: component.latitude,
+          apiKey: process.env.VUE_APP_TRANS_API_KEY,
+          radius: 150
         };
-
         query =
           "?" +
           Object.keys(params)
             .map(k => k + "=" + params[k])
             .join("&");
 
-        fetch(URL + "users/transport" + query, { method: "GET" })
+        fetch(TRANS_API_URL + PATH + query, {
+          method: "GET"
+        })
           .then(response => {
             return response.json();
           })

@@ -5,7 +5,8 @@
 </template>
 
 <style lang="scss">
-@import "./assets/common.scss";
+@import "./common/common.scss";
+
 html,
 body {
   width: 100vw;
@@ -30,5 +31,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+  height: 100%;
+  overflow: auto;
 }
 </style>
