@@ -1,22 +1,25 @@
 <template>
-  <div class="home">
+  <main class="home">
     <nav id="top">
-      <p class="date">{{ nowDate ? nowDate : "불러오는 중..."}}</p>
+      <p class="date">{{ nowDate ? nowDate : "불러오는 중..." }}</p>
       <p class="location">
         <i class="fas fa-location-arrow"></i>
         {{ nowLocation ? nowLocation : "불러오는 중..." }}
       </p>
     </nav>
+    <Alarm />
     <Weather v-bind:weatherData="weatherData" />
     <Transport v-bind:transportData="transportData" />
+    <!-- This is for testing -->
     <!-- <button v-on:click="this.pushTest">Push Test</button> -->
     <!-- <button v-on:click="this.getDeviceToken">Print Token</button> -->
     <!-- <textarea readonly name="test" id="test" cols="30" rows="10"></textarea> -->
-  </div>
+  </main>
 </template>
 
 <script>
 // @ is an alias to /src
+import Alarm from "@/components/Alarm.vue";
 import Weather from "@/components/Weather.vue";
 import Transport from "@/components/Transport.vue";
 import moment from "moment";
@@ -45,6 +48,7 @@ const init = function(component) {
             .map(k => k + "=" + params[k])
             .join("&");
 
+        // Get location information
         fetch(URL + "users/location" + query, {
           method: "GET"
         })
@@ -82,7 +86,7 @@ const init = function(component) {
           x: component.longitude,
           y: component.latitude,
           apiKey: process.env.VUE_APP_TRANS_API_KEY,
-          radius: 150
+          radius: 250
         };
         query =
           "?" +
@@ -156,6 +160,7 @@ const getDeviceToken = function() {
 export default {
   name: "Home",
   components: {
+    Alarm,
     Weather,
     Transport
   },

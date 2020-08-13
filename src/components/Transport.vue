@@ -1,7 +1,7 @@
 <template>
-  <div class="transport-box">
+  <section class="transport-box">
     <p class="title">주변 교통정보</p>
-    <div class="transport-info">
+    <div class="transport-info" v-if="!nowLoading">
       <div class="bus-info">
         <div class="header">
           <img src="../assets/icon/transport/bus.png" alt="icon" class="icon" />
@@ -26,45 +26,64 @@
         <div class="content" v-else>없음</div>
       </div>
     </div>
-  </div>
+    <div class="transport-info" v-else>
+      <div class="loader-wrapper">
+        <Loader />
+      </div>
+    </div>
+  </section>
 </template>
 
 <script>
+import Loader from "@/components/Loader.vue";
+
 export default {
   name: "Transport",
   props: {
     transportData: null
   },
+  components: {
+    Loader
+  },
   data: function() {
     return {
       busList: [],
-      subwayList: []
+      subwayList: [],
+      nowLoading: true
     };
   },
   watch: {
     transportData: function() {
-      if (this.transportData) {
-        // extract bus number list
-        this.busInfo = this.transportData.result.lane.filter(
-          stn => stn.stationClass == 1
-        );
-        for (const busInfo of this.busInfo) {
-          for (const bus of busInfo.busList) {
-            if (!this.busList.includes(bus.busNo)) this.busList.push(bus.busNo);
-          }
-        }
-        this.busList.sort((a, b) => a.length - b.length);
+      // early return
+      if (!this.transportData.result) {
+        this.nowLoading = false;
+        return;
+      }
 
-        // extract subway line list
-        this.subwayInfo = this.transportData.result.lane.filter(
-          stn => stn.stationClass == 2
-        );
-        for (const subwayInfo of this.subwayInfo) {
-          this.subwayList.push({
-            line: subwayInfo.subwayLaneType,
-            name: subwayInfo.stationName
-          });
+      // load complete
+      console.log(this.nowLoading);
+      this.nowLoading = false;
+
+      // extract bus number list
+      this.busInfo = this.transportData.result.lane.filter(
+        stn => stn.stationClass == 1
+      );
+      for (const busInfo of this.busInfo) {
+        for (const bus of busInfo.busList) {
+          if (!this.busList.includes(bus.busNo)) this.busList.push(bus.busNo);
         }
+      }
+      this.busList.sort((a, b) => a.length - b.length);
+
+      // extract subway line list
+      this.subwayInfo = this.transportData.result.lane.filter(
+        stn => stn.stationClass == 2
+      );
+      for (const subwayInfo of this.subwayInfo) {
+        this.subwayList.push({
+          line: subwayInfo.subwayLaneType,
+          name: subwayInfo.stationName
+        });
       }
     }
   }
@@ -174,6 +193,10 @@ export default {
         }
       }
     }
+  }
+
+  .loader-wrapper {
+    display: inline-block;
   }
 }
 </style>
