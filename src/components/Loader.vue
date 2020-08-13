@@ -17,7 +17,7 @@ export default {
     }
   },
   mounted: function() {
-    const loader = document.getElementById("custom-loader");
+    const loader = this.$el;
     loader.style.width = `${parseInt(this.size)}px`;
     loader.style.height = `${parseInt(this.size)}px`;
     loader.style.border = `${(this.size * 2) / 15}px solid ${this.baseColor}`;

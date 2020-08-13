@@ -1,7 +1,7 @@
 <template>
-  <section class="transport-box">
+  <section class="transport-box" v-if="!nowLoading">
     <p class="title">주변 교통정보</p>
-    <div class="transport-info" v-if="!nowLoading">
+    <div class="transport-info">
       <div class="bus-info">
         <div class="header">
           <img src="../assets/icon/transport/bus.png" alt="icon" class="icon" />
@@ -26,10 +26,11 @@
         <div class="content" v-else>없음</div>
       </div>
     </div>
-    <div class="transport-info" v-else>
-      <div class="loader-wrapper">
-        <Loader />
-      </div>
+  </section>
+  <section class="transport-box" v-else>
+    <p class="title">주변 교통정보</p>
+    <div class="loader-wrapper">
+      <Loader />
     </div>
   </section>
 </template>
@@ -61,7 +62,6 @@ export default {
       }
 
       // load complete
-      console.log(this.nowLoading);
       this.nowLoading = false;
 
       // extract bus number list
@@ -103,6 +103,12 @@ export default {
     font-size: 1.3em;
     margin: 0;
     text-align: left;
+  }
+
+  .loader-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
   }
 }
 
@@ -193,10 +199,6 @@ export default {
         }
       }
     }
-  }
-
-  .loader-wrapper {
-    display: inline-block;
   }
 }
 </style>

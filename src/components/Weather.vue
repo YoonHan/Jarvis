@@ -74,7 +74,10 @@ export default {
   watch: {
     weatherData: function() {
       // early return
-      if (!this.weatherData) return;
+      if (!this.weatherData) {
+        this.nowLoading = false;
+        return;
+      }
 
       // Set weather information into this component
       // Load completed

@@ -35,9 +35,12 @@ const init = function(component) {
   const URL = process.env.VUE_APP_API_SERVER;
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
+      // if succeed,
       position => {
         component.longitude = position.coords.longitude;
         component.latitude = position.coords.latitude;
+
+        // Get location information
         let params = {
           longitude: component.longitude,
           latitude: component.latitude
@@ -48,7 +51,6 @@ const init = function(component) {
             .map(k => k + "=" + params[k])
             .join("&");
 
-        // Get location information
         fetch(URL + "users/location" + query, {
           method: "GET"
         })
@@ -101,10 +103,14 @@ const init = function(component) {
             return response.json();
           })
           .then(data => {
+            if (!data.result) {
+              component.transportData = {};
+              return Promise.reject(data);
+            }
             component.transportData = data;
           })
           .catch(err => {
-            console.log(err);
+            console.error(err);
           });
       },
       err => {

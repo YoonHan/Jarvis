@@ -4,7 +4,7 @@
       <div class="source-box">
         <p class="title">출발지 지정</p>
         <p class="source" v-on:click="openSearch">터치하여 출발지 검색</p>
-        <section class="modal" v-if="srcModalOpen">
+        <div class="modal" v-if="srcModalOpen">
           <div class="header">
             <input
               type="text"
@@ -15,13 +15,16 @@
             />
             <button class="close-btn" v-on:click="closeSearch"></button>
           </div>
-          <Loader />
-        </section>
+          <div class="loader-wrapper" v-if="srcLoading">
+            <Loader />
+          </div>
+          <div class="content" v-else>gd</div>
+        </div>
       </div>
       <div class="destination-box">
         <p class="title">도착지 지정</p>
         <p class="destination" v-on:click="openSearch">터치하여 도착지 검색</p>
-        <section class="modal" v-if="dstModalOpen">
+        <div class="modal" v-if="dstModalOpen">
           <div class="header">
             <input
               type="text"
@@ -32,7 +35,11 @@
             />
             <button class="close-btn" v-on:click="closeSearch"></button>
           </div>
-        </section>
+          <div class="loader-wrapper" v-if="dstLoading">
+            <Loader />
+          </div>
+          <div class="content" v-else>gd</div>
+        </div>
       </div>
     </section>
     <section class="time-box">
@@ -50,7 +57,9 @@ export default {
   data: function() {
     return {
       srcModalOpen: false,
-      dstModalOpen: false
+      dstModalOpen: false,
+      srcLoading: false,
+      dstLoading: false
     };
   },
   methods: {
@@ -173,6 +182,12 @@ export default {
             -ms-transform: rotate(-45deg);
           }
         }
+      }
+
+      .loader-wrapper {
+        display: flex;
+        justify-content: center;
+        padding-top: 100px;
       }
     }
   }
