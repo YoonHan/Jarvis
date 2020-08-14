@@ -18,11 +18,6 @@ body {
   padding: 15px;
   box-sizing: border-box;
   background: rgb(238, 174, 202);
-  background: radial-gradient(
-    circle at top right,
-    rgba(238, 174, 202, 1) 0%,
-    rgba(148, 187, 233, 1) 100%
-  );
   font-family: "Do Hyeon", sans-serif !important;
 }
 

@@ -81,14 +81,14 @@ const init = function(component) {
           });
 
         // Get Transport information
-        const TRANS_API_URL = "https://api.odsay.com/v1/api";
+        const TRANS_API_URL = process.env.VUE_APP_TRANS_API_URL;
         const PATH = "/pointBusStation";
         params = {
           lang: 0,
           x: component.longitude,
           y: component.latitude,
           apiKey: process.env.VUE_APP_TRANS_API_KEY,
-          radius: 250
+          radius: 300
         };
         query =
           "?" +
