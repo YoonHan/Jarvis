@@ -117,20 +117,16 @@ export default {
           return;
         }
         console.log("api calling..."); // delete
-        const URL = process.env.VUE_APP_OPEN_ADDR_API_URL;
+        const URL = process.env.VUE_APP_API_SERVER;
         const params = {
-          confmKey: process.env.VUE_APP_OPEN_ADDR_API_KEY,
-          currentPage: 1,
-          countPerPage: 50,
-          keyword: searchWords,
-          resultType: "json"
+          keyword: searchWords
         };
         const query =
           "?" +
           Object.keys(params)
             .map(k => k + "=" + params[k])
             .join("&");
-        fetch(URL + query, { method: "GET" })
+        fetch(URL + "users/address" + query, { method: "GET" })
           .then(response => response.json())
           .then(data => {
             console.log(data.results.juso); // delete

@@ -159,7 +159,7 @@ p {
       list-style-type: none;
 
       .info-item {
-        flex: 1 1 70px;
+        flex: 1 1 85px;
         border-top: 1px solid #dedede;
         margin-right: 10px;
         padding: 5px 0 15px 0;
