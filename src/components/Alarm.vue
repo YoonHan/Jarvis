@@ -3,23 +3,52 @@
     <section class="address-box">
       <div class="source-box">
         <p class="title">출발지 지정</p>
-        <p class="source" v-on:click="openSearchModal" role="source">터치하여 출발지 검색</p>
+        <p class="source" v-on:click="openSearchModal" role="source">
+          터치하여 출발지 검색
+        </p>
       </div>
       <div class="destination-box">
         <p class="title">도착지 지정</p>
-        <p class="destination" v-on:click="openSearchModal" role="destination">터치하여 도착지 검색</p>
+        <p class="destination" v-on:click="openSearchModal" role="destination">
+          터치하여 도착지 검색
+        </p>
       </div>
     </section>
     <section class="time-box">
       <p class="title">알람 시각</p>
-      <div class="time">
-        <ul class="time-info-list">
-          <li class="hour">{{ alarmHour != 0 ? alarmHour : '시'}}</li>
-          <li class="sep">:</li>
-          <li class="minute">{{ alarmMinute != 0 ? alarmMinute : '분' }}</li>
-        </ul>
+      <div class="time-info">
+        <div class="hour-select" v-on:click="toggleHourList">
+          {{ alarmInfo.hour != null ? `${alarmInfo.hour} 시` : "시" }}
+          <ul id="hour-list" v-if="hourListOpen">
+            <li
+              v-for="(hour, index) in hours"
+              :key="index"
+              v-on:click="selectHour"
+              :value="hour"
+            >
+              {{ hour }}
+            </li>
+          </ul>
+        </div>
+        <div class="sep">:</div>
+        <div class="minute-select" v-on:click="toggleMinuteList">
+          {{ alarmInfo.minute != null ? `${alarmInfo.minute} 분` : "분" }}
+          <ul id="minute-list" v-if="minuteListOpen">
+            <li
+              v-for="(minute, index) in minutes"
+              :key="index"
+              v-on:click="selectMinute"
+              :value="minute"
+            >
+              {{ minute }}
+            </li>
+          </ul>
+        </div>
       </div>
     </section>
+    <button class="set-alarm-btn" v-on:click="registerAlarm">
+      알람 등록
+    </button>
     <!-- Modal -->
     <div class="modal" v-if="searchModalOpen">
       <div class="header">
@@ -37,7 +66,10 @@
         <Loader />
       </div>
       <div class="content" v-else>
-        <ul class="address-list" v-if="searchList != null && searchList.length != 0">
+        <ul
+          class="address-list"
+          v-if="searchList != null && searchList.length != 0"
+        >
           <li
             class="address-item"
             v-for="(addrObj, index) in searchList"
@@ -66,6 +98,7 @@
 <script>
 import Loader from "@/components/Loader.vue";
 import { checkSearchedWord } from "./checkSearchWords";
+import { hours, minutes } from "./util";
 
 export default {
   name: "Alarm",
@@ -80,17 +113,23 @@ export default {
         source: {
           address: null,
           x: null,
-          y: null
+          y: null,
         },
         destination: {
           address: null,
           x: null,
-          y: null
-        }
+          y: null,
+        },
       },
-      alarmHour: 0,
-      alarmMinute: 0,
-      keyUpTimer: null
+      alarmInfo: {
+        hour: null,
+        minute: null,
+      },
+      hourListOpen: false,
+      minuteListOpen: false,
+      hours: hours,
+      minutes: minutes,
+      keyUpTimer: null,
     };
   },
   methods: {
@@ -119,16 +158,16 @@ export default {
         console.log("api calling..."); // delete
         const URL = process.env.VUE_APP_API_SERVER;
         const params = {
-          keyword: searchWords
+          keyword: searchWords,
         };
         const query =
           "?" +
           Object.keys(params)
-            .map(k => k + "=" + params[k])
+            .map((k) => k + "=" + params[k])
             .join("&");
         fetch(URL + "users/address" + query, { method: "GET" })
-          .then(response => response.json())
-          .then(data => {
+          .then((response) => response.json())
+          .then((data) => {
             console.log(data.results.juso); // delete
             this.searchList = data.results.juso;
             this.searchLoading = false;
@@ -143,19 +182,19 @@ export default {
       const URL = process.env.VUE_APP_API_SERVER;
       const PATH = "users/geocoding";
       let params = {
-        address: encodeURI(encodeURIComponent(address))
+        address: encodeURI(encodeURIComponent(address)),
       };
       let query =
         "?" +
         Object.keys(params)
-          .map(k => k + "=" + params[k])
+          .map((k) => k + "=" + params[k])
           .join("&");
 
       fetch(URL + PATH + query, { method: "GET" })
-        .then(response => {
+        .then((response) => {
           return response.json();
         })
-        .then(data => {
+        .then((data) => {
           const result = JSON.parse(data).addresses;
           // early return
           if (result.length == 0)
@@ -172,17 +211,42 @@ export default {
           this.searchModalOpen = false;
           this.searchList = null;
         })
-        .catch(err => {
+        .catch((err) => {
           console.log(err);
           alert("주소 등록에 실패했습니다");
         });
-    }
-  }
+    },
+    toggleHourList: function() {
+      this.hourListOpen = !this.hourListOpen;
+    },
+    toggleMinuteList: function() {
+      this.minuteListOpen = !this.minuteListOpen;
+    },
+    selectHour: function(e) {
+      e.stopPropagation();
+      const hourElem = e.currentTarget;
+      this.alarmInfo.hour = hourElem.getAttribute("value");
+      hourElem.innerText = hourElem.getAttribute("value");
+      this.hourListOpen = false;
+    },
+    selectMinute: function(e) {
+      e.stopPropagation();
+      const minuteElem = e.currentTarget;
+      this.alarmInfo.minute = minuteElem.getAttribute("value");
+      minuteElem.innerText = minuteElem.getAttribute("value");
+      this.minuteListOpen = false;
+    },
+    registerAlarm: function(e) {
+      console.log(e.currentTarget);
+    },
+  },
 };
 </script>
 
 <style lang="scss" scoped>
 .alarm-box {
+  display: flex;
+  flex-direction: column;
   background-color: rgba(0, 0, 0, 0.5);
   border-radius: 5px;
   margin-top: 5px;
@@ -223,21 +287,55 @@ export default {
     margin-top: 5px;
     padding: 5px;
 
-    ul.time-info-list {
+    div.time-info {
       display: flex;
       justify-content: space-between;
       list-style-type: none;
-      padding: 5px 10px;
       margin: 0;
       background: rgba(0, 0, 0, 0.5);
       color: #ababab;
       border: none;
       border-radius: 5px;
+      padding: 5px 10px;
 
-      .hour,
-      .minute {
+      div.hour-select,
+      div.minute-select {
         flex-grow: 1;
+        position: relative;
       }
+
+      ul#hour-list,
+      ul#minute-list {
+        position: absolute;
+        list-style-type: none;
+        margin: 5px 0 0 0;
+        padding: 0;
+        height: 150px;
+        overflow: auto;
+        width: 100%;
+        border-top: 1px solid #eeaeca;
+        background-color: rgba(0, 0, 0, 0.8);
+        border-bottom-left-radius: 5px;
+        border-bottom-right-radius: 5px;
+
+        li {
+          padding: 5px 0;
+        }
+      }
+    }
+  }
+
+  button.set-alarm-btn {
+    border: none;
+    border-radius: 5px;
+    background-color: #eeaeca;
+    font-family: "Do Hyeon", sans-serif;
+    font-size: 1.2em;
+    color: white;
+    margin: 5px;
+
+    &:focus {
+      outline: none;
     }
   }
 
