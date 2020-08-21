@@ -204,7 +204,7 @@ export default {
                     let guideMessage = "";
                     if (subPath.trafficType == 1) {
                       // 지하철인 경우
-                      guideMessage = `지하철로 ${subPath.startName}역에서 ${subPath.endName}역으로`;
+                      guideMessage = `지하철로 [${subPath.startName}역]에서 [${subPath.endName}역]으로`;
                     } else if (subPath.trafficType == 2) {
                       // 버스인 경우
                       let bus = subPath.lane
