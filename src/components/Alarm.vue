@@ -3,15 +3,33 @@
     <section class="address-box">
       <div class="source-box">
         <p class="title">출발지 지정</p>
-        <p class="source" v-on:click="openSearchModal" role="source">
-          터치하여 출발지 검색
-        </p>
+        <p class="source" v-on:click="openSearchModal" role="source">터치하여 출발지 검색</p>
       </div>
       <div class="destination-box">
         <p class="title">도착지 지정</p>
-        <p class="destination" v-on:click="openSearchModal" role="destination">
-          터치하여 도착지 검색
-        </p>
+        <p class="destination" v-on:click="openSearchModal" role="destination">터치하여 도착지 검색</p>
+      </div>
+    </section>
+    <section class="path-box">
+      <p class="title">경로 정보</p>
+      <div class="path-info" v-if="pathInfo != null && !pathSearching">
+        <ul class="path-info-list">
+          <li v-for="(path, index) in pathInfo" :key="index">
+            <p>
+              <span class="time-estimated">{{ path.info.totalTime }}분 소요</span>
+              {{ path.info.guideMessage }}
+            </p>
+          </li>
+        </ul>
+      </div>
+      <div class="path-info" v-else-if="pathInfo == null && !pathSearching">
+        <p v-if="showPathError">{{ pathErrorMessage }}</p>
+        <p v-else>출발지와 도착지를 설정해주세요</p>
+      </div>
+      <div class="path-info" v-else-if="pathSearching">
+        <div class="loader-wrapper">
+          <Loader />
+        </div>
       </div>
     </section>
     <section class="time-box">
@@ -25,9 +43,7 @@
               :key="index"
               v-on:click="selectHour"
               :value="hour"
-            >
-              {{ hour }}
-            </li>
+            >{{ hour }}</li>
           </ul>
         </div>
         <div class="sep">:</div>
@@ -39,16 +55,12 @@
               :key="index"
               v-on:click="selectMinute"
               :value="minute"
-            >
-              {{ minute }}
-            </li>
+            >{{ minute }}</li>
           </ul>
         </div>
       </div>
     </section>
-    <button class="set-alarm-btn" v-on:click="registerAlarm">
-      알람 등록
-    </button>
+    <button class="set-alarm-btn" v-on:click="registerAlarm">알람 등록</button>
     <!-- Modal -->
     <div class="modal" v-if="searchModalOpen">
       <div class="header">
@@ -66,10 +78,7 @@
         <Loader />
       </div>
       <div class="content" v-else>
-        <ul
-          class="address-list"
-          v-if="searchList != null && searchList.length != 0"
-        >
+        <ul class="address-list" v-if="searchList != null && searchList.length != 0">
           <li
             class="address-item"
             v-for="(addrObj, index) in searchList"
@@ -92,19 +101,26 @@
         </ul>
       </div>
     </div>
+    <!-- Snack Bar -->
+    <SnackBar v-if="snackBarSuccessOpen" content="알람 등록을 성공하였습니다" success="true" />
+    <SnackBar v-if="snackBarMissingFailOpen" content="알람에 필요한 정보가 누락되었습니다" success="fail" />
+    <SnackBar v-if="snackBarNetworkFailOpen" content="알람 등록을 실패하였습니다" success="fail" />
+    <SnackBar v-if="snackBarAddressFailOpen" content="주소 등록을 실패하였습니다" success="fail" />
   </section>
 </template>
 
 <script>
 import Loader from "@/components/Loader.vue";
+import SnackBar from "@/components/SnackBar.vue";
 import { checkSearchedWord } from "./checkSearchWords";
-import { hours, minutes } from "./util";
+import { hours, minutes, paramsToQuery } from "./util";
 
 export default {
   name: "Alarm",
-  components: { Loader },
+  components: { Loader, SnackBar },
   data: function() {
     return {
+      test: true,
       searchModalOpen: false,
       searchModalSelected: "",
       searchLoading: false,
@@ -113,24 +129,110 @@ export default {
         source: {
           address: null,
           x: null,
-          y: null,
+          y: null
         },
         destination: {
           address: null,
           x: null,
-          y: null,
-        },
+          y: null
+        }
       },
       alarmInfo: {
         hour: null,
-        minute: null,
+        minute: null
       },
+      pathInfo: null,
+      pathSearching: false,
       hourListOpen: false,
       minuteListOpen: false,
       hours: hours,
       minutes: minutes,
-      keyUpTimer: null,
+      snackBarSuccessOpen: false,
+      snackBarMissingFailOpen: false,
+      snackBarNetworkFailOpen: false,
+      snackBarAddressFailOpen: false,
+      pathErrorMessage: "",
+      showPathError: false,
+      keyUpTimer: null
     };
+  },
+  watch: {
+    locationInfo: {
+      deep: true,
+
+      handler: async function(info) {
+        if (
+          info.source.address &&
+          info.source.x &&
+          info.source.y &&
+          info.destination.address &&
+          info.destination.x &&
+          info.destination.y
+        ) {
+          this.pathSearching = true; // start Loader
+          const URL = process.env.VUE_APP_TRANS_API_URL;
+          const PATH = "/searchPubTransPath";
+          let params = {
+            SX: info.source.x,
+            SY: info.source.y,
+            EX: info.destination.x,
+            EY: info.destination.y,
+            apiKey: process.env.VUE_APP_TRANS_API_KEY
+          };
+          let query = paramsToQuery(params);
+          await fetch(URL + PATH + query, {
+            method: "GET"
+          })
+            .then(response => response.json())
+            .then(data => {
+              // 출발지, 도착지 에러 발생 시
+              if ("error" in data) {
+                return Promise.reject(data);
+              }
+
+              this.showPathError = false;
+              data = data.result.path;
+              this.pathInfo = data.splice(0, 4);
+              this.pathInfo = this.pathInfo.map(path => {
+                // subPath 중에서 걷는 구간 제외
+                path.subPath = path.subPath.filter(
+                  subPath => subPath.trafficType != 3
+                );
+                // pathInfo 안에 경로 안내 메시지 추가
+                path.info.guideMessage = path.subPath
+                  .map(subPath => {
+                    let guideMessage = "";
+                    if (subPath.trafficType == 1) {
+                      // 지하철인 경우
+                      guideMessage = `지하철로 ${subPath.startName}역에서 ${subPath.endName}역으로`;
+                    } else if (subPath.trafficType == 2) {
+                      // 버스인 경우
+                      let bus = subPath.lane
+                        .map(lane => `[${lane.busNo}번]`)
+                        .join(" ");
+                      guideMessage = `${bus} 버스로 ${subPath.startName}정류장에서 ${subPath.endName}정류장으로`;
+                    }
+                    return guideMessage;
+                  })
+                  .join(" -> ");
+                return path;
+              });
+            })
+            .catch(err => {
+              console.error(err);
+              if ("error" in err && "msg" in err.error)
+                this.pathErrorMessage = err.error.msg;
+              else this.pathErrorMessage = "경로 탐색에 실패하였습니다";
+              this.pathInfo = null;
+              this.showPathError = true;
+            });
+
+          this.pathSearching = false; // end Loader
+        } else {
+          return;
+        }
+      }
+    }
   },
   methods: {
     openSearchModal: function(e) {
@@ -155,20 +257,14 @@ export default {
           this.searchLoading = false;
           return;
         }
-        console.log("api calling..."); // delete
         const URL = process.env.VUE_APP_API_SERVER;
         const params = {
-          keyword: searchWords,
+          keyword: searchWords
         };
-        const query =
-          "?" +
-          Object.keys(params)
-            .map((k) => k + "=" + params[k])
-            .join("&");
+        const query = paramsToQuery(params);
         fetch(URL + "users/address" + query, { method: "GET" })
-          .then((response) => response.json())
-          .then((data) => {
-            console.log(data.results.juso); // delete
+          .then(response => response.json())
+          .then(data => {
             this.searchList = data.results.juso;
             this.searchLoading = false;
           });
@@ -182,19 +278,14 @@ export default {
       const URL = process.env.VUE_APP_API_SERVER;
       const PATH = "users/geocoding";
       let params = {
-        address: encodeURI(encodeURIComponent(address)),
+        address: encodeURI(encodeURIComponent(address))
       };
-      let query =
-        "?" +
-        Object.keys(params)
-          .map((k) => k + "=" + params[k])
-          .join("&");
-
+      let query = paramsToQuery(params);
       fetch(URL + PATH + query, { method: "GET" })
-        .then((response) => {
+        .then(response => {
           return response.json();
         })
-        .then((data) => {
+        .then(data => {
           const result = JSON.parse(data).addresses;
           // early return
           if (result.length == 0)
@@ -211,9 +302,12 @@ export default {
           this.searchModalOpen = false;
           this.searchList = null;
         })
-        .catch((err) => {
-          console.log(err);
-          alert("주소 등록에 실패했습니다");
+        .catch(err => {
+          console.error(err);
+          this.snackBarAddressFailOpen = true;
+          setTimeout(() => {
+            this.snackBarAddressFailOpen = false;
+          }, 5000);
         });
     },
     toggleHourList: function() {
@@ -236,15 +330,59 @@ export default {
       minuteElem.innerText = minuteElem.getAttribute("value");
       this.minuteListOpen = false;
     },
-    registerAlarm: function(e) {
-      console.log(e.currentTarget);
-    },
-  },
+    registerAlarm: function() {
+      // check if necessary info is ready
+      if (
+        !this.locationInfo.source.address ||
+        !this.locationInfo.source.x ||
+        !this.locationInfo.source.y ||
+        !this.locationInfo.destination.address ||
+        !this.locationInfo.destination.x ||
+        !this.locationInfo.destination.y ||
+        !this.alarmInfo.hour ||
+        !this.alarmInfo.minute
+      ) {
+        this.snackBarMissingFailOpen = true;
+        setTimeout(() => {
+          this.snackBarMissingFailOpen = false;
+        }, 5000);
+        return;
+      }
+      const URL = process.env.VUE_APP_API_SERVER;
+      const PATH = "users/alarm";
+      const DATA = {
+        locationInfo: this.locationInfo,
+        alarmInfo: this.alarmInfo,
+        deviceToken: localStorage.getItem("DEVICE_TOKEN")
+      };
+      fetch(URL + PATH, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(DATA)
+      })
+        .then(response => {
+          if (response.status == 200) {
+            this.snackBarSuccessOpen = true;
+            setTimeout(() => (this.snackBarSuccessOpen = false), 5000);
+          } else {
+            this.snackBarNetworkFailOpen = true;
+            setTimeout(() => (this.snackBarNetworkFailOpen = false), 5000);
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          this.snackBarNetworkFailOpen = true;
+          setTimeout(() => (this.snackBarNetworkFailOpen = false), 5000);
+        });
+    }
+  }
 };
 </script>
 
 <style lang="scss" scoped>
-.alarm-box {
+section.alarm-box {
   display: flex;
   flex-direction: column;
   background-color: rgba(0, 0, 0, 0.5);
@@ -258,12 +396,12 @@ export default {
     text-align: left;
   }
 
-  .address-box {
+  section.address-box {
     display: flex;
     justify-content: space-between;
 
-    .source-box,
-    .destination-box {
+    div.source-box,
+    div.destination-box {
       display: flex;
       flex-direction: column;
       flex: 1;
@@ -278,6 +416,49 @@ export default {
         border-radius: 5px;
         color: #ababab;
       }
+    }
+  }
+
+  section.path-box {
+    margin-top: 5px;
+    padding: 5px;
+
+    div.path-info {
+      max-height: 150px;
+      overflow: auto;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 5px;
+      padding: 5px 10px;
+      color: #ababab;
+
+      p {
+        margin: 0;
+        text-align: left;
+      }
+
+      .path-info-list {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+
+        li {
+          margin-bottom: 5px;
+        }
+
+        span.time-estimated {
+          background: white;
+          display: inline-block;
+          padding: 0px 4px;
+          color: black;
+          border-radius: 10px;
+        }
+      }
+    }
+
+    div.loader-wrapper {
+      display: flex;
+      justify-content: center;
+      padding: 10px 0px;
     }
   }
 
@@ -302,6 +483,7 @@ export default {
       div.minute-select {
         flex-grow: 1;
         position: relative;
+        width: 50px;
       }
 
       ul#hour-list,

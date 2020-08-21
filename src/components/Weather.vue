@@ -1,5 +1,5 @@
 <template>
-  <section class="weather-box" v-if="!nowLoading">
+  <section class="weather-box" v-if="!nowLoading && typeof(weatherData) != 'string'">
     <p class="title">현재 날씨</p>
     <div class="weather-info">
       <div class="now">
@@ -36,7 +36,11 @@
     </div>
     <footer class="source" v-if="weatherData">출처 : OpenWeather</footer>
   </section>
-  <section class="weather-box" v-else>
+  <section class="weather-box" v-else-if="!nowLoading && typeof(weatherData) == 'string'">
+    <p class="title">현재 날씨</p>
+    <p class="message">날씨 정보를 불러오지 못했습니다</p>
+  </section>
+  <section class="weather-box" v-else-if="nowLoading">
     <p class="title">현재 날씨</p>
     <div class="loader-wrapper">
       <Loader />
@@ -129,6 +133,10 @@ p {
     text-align: left;
     margin: 0;
     font-size: 1.3em;
+  }
+
+  .message {
+    text-align: left;
   }
 
   .source {

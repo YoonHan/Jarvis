@@ -87,3 +87,14 @@ export const minutes = [
   58,
   59,
 ];
+
+export function paramsToQuery(params) {
+  if (typeof params !== "object") throw "Invalid input";
+
+  return (
+    "?" +
+    Object.keys(params)
+      .map((k) => k + "=" + params[k])
+      .join("&")
+  );
+}

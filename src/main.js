@@ -32,7 +32,6 @@ messaging
     // Get Token
     messaging.getToken().then((token) => {
       localStorage.setItem("DEVICE_TOKEN", token);
-      console.log(token);
     });
   })
   .catch((err) => {
@@ -45,9 +44,8 @@ messaging
 //   `messaging.setBackgroundMessageHandler` handler.
 messaging.onMessage((payload) => {
   console.log("Message received. ", payload);
-  // ...
   let title = payload.notification.title;
-  let body = payload.notification.content;
+  let body = payload.notification.body;
 
   // check environment
   if (
@@ -55,10 +53,10 @@ messaging.onMessage((payload) => {
       navigator.userAgent
     )
   ) {
-    alert(navigator.userAgent);
+    alert(body);
   } else {
     let notification = new Notification(title, body);
-    console.log(`${notification.title} ${notification.body}`);
+    console.info(notification);
   }
 });
 

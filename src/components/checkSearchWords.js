@@ -12,7 +12,7 @@ export function checkSearchedWord(words) {
     //특수문자 제거
     var expText = /[%=><]/;
     if (expText.test(words) == true) {
-      alert("특수문자를 입력 할수 없습니다.");
+      alert("특수문자를 입력할 수 없습니다.");
       words = words.split(expText).join("");
       return false;
     }
@@ -39,9 +39,7 @@ export function checkSearchedWord(words) {
       regex = new RegExp(sqlArray[i], "gi");
 
       if (regex.test(words)) {
-        alert(
-          '"' + sqlArray[i] + '"와(과) 같은 특정문자로 검색할 수 없습니다.'
-        );
+        alert('"' + sqlArray[i] + '"와(과) 같은 예약어로 검색할 수 없습니다.');
         words = words.replace(regex, "");
         return false;
       }
