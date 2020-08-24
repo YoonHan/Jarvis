@@ -6,22 +6,20 @@ import firebase from "firebase/app";
 import "firebase/messaging";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDkqVHtZP7B5rA9fSkP85QzZEexA8FKSBA",
-  authDomain: "vue-pwa-cc9dd.firebaseapp.com",
-  databaseURL: "https://vue-pwa-cc9dd.firebaseio.com",
-  projectId: "vue-pwa-cc9dd",
-  storageBucket: "vue-pwa-cc9dd.appspot.com",
-  messagingSenderId: "629646632110",
-  appId: "1:629646632110:web:d29dc6c2c9631b7cebb93f",
+  apiKey: process.env.VUE_APP_FB_API_KEY,
+  authDomain: process.env.VUE_APP_FB_AUTH_DOMAIN,
+  databaseURL: process.env.VUE_APP_FB_DB_URL,
+  projectId: process.env.VUE_APP_FB_PROJ_ID,
+  storageBucket: process.env.VUE_APP_FB_STORAGE_BUCKET,
+  messagingSenderId: process.env.VUE_APP_FB_MSG_SNDR_ID,
+  appId: process.env.VUE_APP_FB_APP_ID,
 };
 
 firebase.initializeApp(firebaseConfig);
 
 const messaging = firebase.messaging();
 
-messaging.usePublicVapidKey(
-  "BNafXdWYKm6ZJ_6ShDne7GpuPUmG5M6vaJicuzsxv6JK4VGEDFdW8l1jyhOe5LntHHErp3Ui92gY7KYXxH-N-0o"
-); // 1. Generate a new key pair
+messaging.usePublicVapidKey(process.env.VUE_APP_FB_PUBLIC_VAPID_KEY); // 1. Generate a new key pair
 
 // Request Permission of Notifications
 messaging

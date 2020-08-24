@@ -11,7 +11,7 @@ export function checkSearchedWord(words) {
   if (words.length > 0) {
     //특수문자 제거
     var expText = /[%=><]/;
-    if (expText.test(words) == true) {
+    if (expText.test(words) === true) {
       alert("특수문자를 입력할 수 없습니다.");
       words = words.split(expText).join("");
       return false;

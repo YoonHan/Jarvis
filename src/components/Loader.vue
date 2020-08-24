@@ -1,5 +1,7 @@
 <template>
-  <div id="custom-loader"></div>
+  <div>
+    <div class="custom-loader"></div>
+  </div>
 </template>
 
 <script>
@@ -17,7 +19,7 @@ export default {
     }
   },
   mounted: function() {
-    const loader = this.$el;
+    const loader = this.$el.getElementsByClassName("custom-loader")[0];
     // set loader style
     loader.style.width = `${parseInt(this.size)}px`;
     loader.style.height = `${parseInt(this.size)}px`;
@@ -30,7 +32,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-#custom-loader {
+div.custom-loader {
   border-radius: 50%;
   animation: spin 2s linear infinite;
 }

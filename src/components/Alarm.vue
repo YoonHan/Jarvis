@@ -1,68 +1,88 @@
 <template>
   <section class="alarm-box">
+    <!-- 출발지 도착지 지정 부분 -->
     <section class="address-box">
       <div class="source-box">
         <p class="title">출발지 지정</p>
-        <p class="source" v-on:click="openSearchModal" role="source">터치하여 출발지 검색</p>
+        <p class="source" v-on:click="openSearchModal" role="source">
+          터치하여 출발지 검색
+        </p>
       </div>
       <div class="destination-box">
         <p class="title">도착지 지정</p>
-        <p class="destination" v-on:click="openSearchModal" role="destination">터치하여 도착지 검색</p>
+        <p class="destination" v-on:click="openSearchModal" role="destination">
+          터치하여 도착지 검색
+        </p>
       </div>
     </section>
+    <!-- 교통 정보 경로 표시 부분 -->
     <section class="path-box">
       <p class="title">경로 정보</p>
+      <!-- 경로 검색이 완료 되었을 때 -->
       <div class="path-info" v-if="pathInfo != null && !pathSearching">
         <ul class="path-info-list">
           <li v-for="(path, index) in pathInfo" :key="index">
             <p>
-              <span class="time-estimated">{{ path.info.totalTime }}분 소요</span>
+              <span class="time-estimated"
+                >{{ path.info.totalTime }}분 소요</span
+              >
               {{ path.info.guideMessage }}
             </p>
           </li>
         </ul>
       </div>
-      <div class="path-info" v-else-if="pathInfo == null && !pathSearching">
+      <!-- 경로 정보 검색에 실패했거나 출발지, 도착지 설정이 안되었을 때 -->
+      <div class="path-info" v-else-if="pathInfo === null && !pathSearching">
         <p v-if="showPathError">{{ pathErrorMessage }}</p>
         <p v-else>출발지와 도착지를 설정해주세요</p>
       </div>
+      <!-- 경로 검색 중일 때 -->
       <div class="path-info" v-else-if="pathSearching">
-        <div class="loader-wrapper">
-          <Loader />
-        </div>
+        <Loader class="loader-wrapper" />
       </div>
     </section>
+
+    <!-- 알람 설정 부분 -->
     <section class="time-box">
       <p class="title">알람 시각</p>
       <div class="time-info">
+        <!-- 시간 선택 -->
         <div class="hour-select" v-on:click="toggleHourList">
-          {{ alarmInfo.hour != null ? `${alarmInfo.hour} 시` : "시" }}
+          {{ alarmInfo.hour !== null ? `${alarmInfo.hour} 시` : "시" }}
           <ul id="hour-list" v-if="hourListOpen">
             <li
               v-for="(hour, index) in hours"
               :key="index"
               v-on:click="selectHour"
               :value="hour"
-            >{{ hour }}</li>
+            >
+              {{ hour }}
+            </li>
           </ul>
         </div>
+        <!-- separator -->
         <div class="sep">:</div>
+        <!-- 분 선택 -->
         <div class="minute-select" v-on:click="toggleMinuteList">
-          {{ alarmInfo.minute != null ? `${alarmInfo.minute} 분` : "분" }}
+          {{ alarmInfo.minute !== null ? `${alarmInfo.minute} 분` : "분" }}
           <ul id="minute-list" v-if="minuteListOpen">
             <li
               v-for="(minute, index) in minutes"
               :key="index"
               v-on:click="selectMinute"
               :value="minute"
-            >{{ minute }}</li>
+            >
+              {{ minute }}
+            </li>
           </ul>
         </div>
       </div>
     </section>
+    <!-- 알람 등록 버튼 -->
     <button class="set-alarm-btn" v-on:click="registerAlarm">알람 등록</button>
     <!-- Modal -->
     <div class="modal" v-if="searchModalOpen">
+      <!-- 검색 창 -->
       <div class="header">
         <input
           type="text"
@@ -74,11 +94,13 @@
         />
         <button class="close-btn" v-on:click="closeSearchModal"></button>
       </div>
-      <div class="loader-wrapper" v-if="searchLoading">
-        <Loader />
-      </div>
+      <!-- 검색 결과 부분 -->
+      <Loader class="loader-wrapper" v-if="searchLoading" />
       <div class="content" v-else>
-        <ul class="address-list" v-if="searchList != null && searchList.length != 0">
+        <ul
+          class="address-list"
+          v-if="searchList != null && searchList.length != 0"
+        >
           <li
             class="address-item"
             v-for="(addrObj, index) in searchList"
@@ -102,10 +124,9 @@
       </div>
     </div>
     <!-- Snack Bar -->
-    <SnackBar v-if="snackBarSuccessOpen" content="알람 등록을 성공하였습니다" success="true" />
-    <SnackBar v-if="snackBarMissingFailOpen" content="알람에 필요한 정보가 누락되었습니다" success="fail" />
-    <SnackBar v-if="snackBarNetworkFailOpen" content="알람 등록을 실패하였습니다" success="fail" />
-    <SnackBar v-if="snackBarAddressFailOpen" content="주소 등록을 실패하였습니다" success="fail" />
+    <SnackBar v-if="snackBarOpen" :isSuccess="isSnackBarSuccess">
+      {{ snackBarMessage }}
+    </SnackBar>
   </section>
 </template>
 
@@ -129,17 +150,17 @@ export default {
         source: {
           address: null,
           x: null,
-          y: null
+          y: null,
         },
         destination: {
           address: null,
           x: null,
-          y: null
-        }
+          y: null,
+        },
       },
       alarmInfo: {
         hour: null,
-        minute: null
+        minute: null,
       },
       pathInfo: null,
       pathSearching: false,
@@ -147,13 +168,12 @@ export default {
       minuteListOpen: false,
       hours: hours,
       minutes: minutes,
-      snackBarSuccessOpen: false,
-      snackBarMissingFailOpen: false,
-      snackBarNetworkFailOpen: false,
-      snackBarAddressFailOpen: false,
+      snackBarOpen: false,
+      snackBarMessage: "",
+      isSnackBarSuccess: true,
       pathErrorMessage: "",
       showPathError: false,
-      keyUpTimer: null
+      keyUpTimer: null,
     };
   },
   watch: {
@@ -177,14 +197,14 @@ export default {
             SY: info.source.y,
             EX: info.destination.x,
             EY: info.destination.y,
-            apiKey: process.env.VUE_APP_TRANS_API_KEY
+            apiKey: process.env.VUE_APP_TRANS_API_KEY,
           };
           let query = paramsToQuery(params);
           await fetch(URL + PATH + query, {
-            method: "GET"
+            method: "GET",
           })
-            .then(response => response.json())
-            .then(data => {
+            .then((response) => response.json())
+            .then((data) => {
               // 출발지, 도착지 에러 발생 시
               if ("error" in data) {
                 return Promise.reject(data);
@@ -193,22 +213,22 @@ export default {
               this.showPathError = false;
               data = data.result.path;
               this.pathInfo = data.splice(0, 4);
-              this.pathInfo = this.pathInfo.map(path => {
+              this.pathInfo = this.pathInfo.map((path) => {
                 // subPath 중에서 걷는 구간 제외
                 path.subPath = path.subPath.filter(
-                  subPath => subPath.trafficType != 3
+                  (subPath) => subPath.trafficType != 3
                 );
                 // pathInfo 안에 경로 안내 메시지 추가
                 path.info.guideMessage = path.subPath
-                  .map(subPath => {
+                  .map((subPath) => {
                     let guideMessage = "";
-                    if (subPath.trafficType == 1) {
+                    if (subPath.trafficType === 1) {
                       // 지하철인 경우
                       guideMessage = `지하철로 [${subPath.startName}역]에서 [${subPath.endName}역]으로`;
-                    } else if (subPath.trafficType == 2) {
+                    } else if (subPath.trafficType === 2) {
                       // 버스인 경우
                       let bus = subPath.lane
-                        .map(lane => `[${lane.busNo}번]`)
+                        .map((lane) => `[${lane.busNo}번]`)
                         .join(" ");
                       guideMessage = `${bus} 버스로 ${subPath.startName}정류장에서 ${subPath.endName}정류장으로`;
                     }
@@ -218,7 +238,7 @@ export default {
                 return path;
               });
             })
-            .catch(err => {
+            .catch((err) => {
               console.error(err);
               if ("error" in err && "msg" in err.error)
                 this.pathErrorMessage = err.error.msg;
@@ -231,8 +251,8 @@ export default {
         } else {
           return;
         }
-      }
-    }
+      },
+    },
   },
   methods: {
     openSearchModal: function(e) {
@@ -259,12 +279,12 @@ export default {
         }
         const URL = process.env.VUE_APP_API_SERVER;
         const params = {
-          keyword: searchWords
+          keyword: searchWords,
         };
         const query = paramsToQuery(params);
         fetch(URL + "users/address" + query, { method: "GET" })
-          .then(response => response.json())
-          .then(data => {
+          .then((response) => response.json())
+          .then((data) => {
             this.searchList = data.results.juso;
             this.searchLoading = false;
           });
@@ -278,17 +298,17 @@ export default {
       const URL = process.env.VUE_APP_API_SERVER;
       const PATH = "users/geocoding";
       let params = {
-        address: encodeURI(encodeURIComponent(address))
+        address: encodeURI(encodeURIComponent(address)),
       };
       let query = paramsToQuery(params);
       fetch(URL + PATH + query, { method: "GET" })
-        .then(response => {
+        .then((response) => {
           return response.json();
         })
-        .then(data => {
+        .then((data) => {
           const result = JSON.parse(data).addresses;
           // early return
-          if (result.length == 0)
+          if (result.length === 0)
             return Promise.reject("No geocoding search results");
 
           const sourceElement = document.getElementsByClassName(
@@ -302,11 +322,13 @@ export default {
           this.searchModalOpen = false;
           this.searchList = null;
         })
-        .catch(err => {
+        .catch((err) => {
           console.error(err);
-          this.snackBarAddressFailOpen = true;
+          this.snackBarMessage = "알람에 필요한 정보가 누락되었습니다";
+          this.isSnackBarSuccess = false;
+          this.snackBarOpen = true;
           setTimeout(() => {
-            this.snackBarAddressFailOpen = false;
+            this.snackBarOpen = false;
           }, 5000);
         });
     },
@@ -342,7 +364,9 @@ export default {
         !this.alarmInfo.hour ||
         !this.alarmInfo.minute
       ) {
-        this.snackBarMissingFailOpen = true;
+        this.snackBarMessage = "알람 등록에 실패하였습니다";
+        this.isSnackBarSuccess = false;
+        this.snackBarOpen = true;
         setTimeout(() => {
           this.snackBarMissingFailOpen = false;
         }, 5000);
@@ -353,31 +377,37 @@ export default {
       const DATA = {
         locationInfo: this.locationInfo,
         alarmInfo: this.alarmInfo,
-        deviceToken: localStorage.getItem("DEVICE_TOKEN")
+        deviceToken: localStorage.getItem("DEVICE_TOKEN"),
       };
       fetch(URL + PATH, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(DATA)
+        body: JSON.stringify(DATA),
       })
-        .then(response => {
-          if (response.status == 200) {
-            this.snackBarSuccessOpen = true;
-            setTimeout(() => (this.snackBarSuccessOpen = false), 5000);
+        .then((response) => {
+          if (response.status === 200) {
+            this.snackBarMessage = "알람 등록에 성공하였습니다";
+            this.isSnackBarSuccess = true;
+            this.snackBarOpen = true;
+            setTimeout(() => (this.snackBarOpen = false), 5000);
           } else {
-            this.snackBarNetworkFailOpen = true;
-            setTimeout(() => (this.snackBarNetworkFailOpen = false), 5000);
+            this.snackBarMessage = "알람 등록에 실패하였습니다";
+            this.isSnackBarSuccess = false;
+            this.snackBarOpen = true;
+            setTimeout(() => (this.snackBarOpen = false), 5000);
           }
         })
-        .catch(err => {
+        .catch((err) => {
           console.error(err);
-          this.snackBarNetworkFailOpen = true;
-          setTimeout(() => (this.snackBarNetworkFailOpen = false), 5000);
+          this.snackBarMessage = "알람 등록에 실패하였습니다";
+          this.isSnackBarSuccess = false;
+          this.snackBarOpen = true;
+          setTimeout(() => (this.snackBarOpen = false), 5000);
         });
-    }
-  }
+    },
+  },
 };
 </script>
 

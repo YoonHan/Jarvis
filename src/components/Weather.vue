@@ -1,34 +1,50 @@
 <template>
-  <section class="weather-box" v-if="!nowLoading && typeof(weatherData) != 'string'">
+  <!-- 올바른 데이터를 받았을 때 -->
+  <section
+    class="weather-box"
+    v-if="!nowLoading && typeof weatherData !== 'string'"
+  >
     <p class="title">현재 날씨</p>
+    <!-- 현재 날씨 -->
     <div class="weather-info">
       <div class="now">
         <img v-bind:src="now.iconSrc" alt="weather icon" class="weather-icon" />
         <ul class="info">
           <li class="info-item">
             <p class="name">기온</p>
-            <p class="content">현재: {{ now.temp ? now.temp : '-' }}</p>
-            <p class="content">체감: {{ now.feelsLike ? now.feelsLike : '-' }}</p>
+            <p class="content">현재: {{ now.temp ? now.temp : "-" }}</p>
+            <p class="content">
+              체감: {{ now.feelsLike ? now.feelsLike : "-" }}
+            </p>
           </li>
           <li class="info-item">
             <p class="name">습도</p>
-            <p class="content">{{ now.humidity ? now.humidity : '-' }}</p>
+            <p class="content">{{ now.humidity ? now.humidity : "-" }}</p>
           </li>
           <li class="info-item">
             <p class="name">풍속</p>
-            <p class="content">{{ now.windSpeed ? now.windSpeed : '-' }}</p>
+            <p class="content">{{ now.windSpeed ? now.windSpeed : "-" }}</p>
           </li>
           <li class="info-item">
             <p class="name">강수량</p>
-            <p class="content">{{ now.rain ? now.rain : '-' }}</p>
+            <p class="content">{{ now.rain ? now.rain : "-" }}</p>
           </li>
         </ul>
       </div>
+      <!-- 12시간 예보 날씨 -->
       <div class="forecast">
         <ul class="info">
-          <li class="info-item" v-for="(hourlyData, index) in forecast" :key="index">
+          <li
+            class="info-item"
+            v-for="(hourlyData, index) in forecast"
+            :key="index"
+          >
             <p class="time">{{ hourlyData.dt }}</p>
-            <img v-bind:src="hourlyData.weather[0].icon" alt="weather icon" class="weather-icon" />
+            <img
+              v-bind:src="hourlyData.weather[0].icon"
+              alt="weather icon"
+              class="weather-icon"
+            />
             <p class="temp">{{ hourlyData.temp }}</p>
           </li>
         </ul>
@@ -36,15 +52,17 @@
     </div>
     <footer class="source" v-if="weatherData">출처 : OpenWeather</footer>
   </section>
-  <section class="weather-box" v-else-if="!nowLoading && typeof(weatherData) == 'string'">
+  <!-- 올바르지 않은 데이터를 받았을 때 -->
+  <section
+    class="weather-box"
+    v-else-if="!nowLoading && typeof weatherData === 'string'"
+  >
     <p class="title">현재 날씨</p>
     <p class="message">날씨 정보를 불러오지 못했습니다</p>
   </section>
   <section class="weather-box" v-else-if="nowLoading">
     <p class="title">현재 날씨</p>
-    <div class="loader-wrapper">
-      <Loader />
-    </div>
+    <Loader class="loader-wrapper" />
   </section>
 </template>
 
@@ -55,10 +73,10 @@ import Loader from "@/components/Loader.vue";
 export default {
   name: "Weather",
   props: {
-    weatherData: null
+    weatherData: null,
   },
   components: {
-    Loader
+    Loader,
   },
   data: function() {
     return {
@@ -69,10 +87,10 @@ export default {
         iconSrc: "",
         feelsLike: "",
         humidity: "",
-        rain: ""
+        rain: "",
       },
       forecast: null,
-      nowLoading: true
+      nowLoading: true,
     };
   },
   watch: {
@@ -87,7 +105,7 @@ export default {
       // Load completed
       this.nowLoading = false;
 
-      // now
+      // 현재 날씨 정보 등록
       this.now.sunrise = moment(this.weatherData.current.sunrise * 1000).format(
         "h:mm A"
       );
@@ -105,15 +123,15 @@ export default {
         this.now.rain = this.weatherData.hourly[0].rain["1h"] + " mm/h";
       }
 
-      // forecast
+      // 날씨 예보 정보 등록
       this.forecast = this.weatherData.hourly.slice(1, 11);
       for (let hourlyData of this.forecast) {
         hourlyData.dt = moment(hourlyData.dt * 1000).format("H[시]");
         hourlyData.temp = Math.round(hourlyData.temp) + "°C";
         hourlyData.weather[0].icon = require(`../assets/icon/weather/${hourlyData.weather[0].icon}.svg`);
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

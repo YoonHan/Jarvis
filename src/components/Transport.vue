@@ -1,17 +1,22 @@
 <template>
+  <!-- 로딩 중이 아닐 때 -->
   <section class="transport-box" v-if="!nowLoading">
     <p class="title">주변 교통정보</p>
     <div class="transport-info">
+      <!-- 버스 정보 -->
       <div class="bus-info">
         <div class="header">
           <img src="../assets/icon/transport/bus.png" alt="icon" class="icon" />
           <p class="sub">버스정보</p>
         </div>
         <div class="content" v-if="busList.length != 0">
-          <p class="bus-no" v-for="(busNo, index) in busList" :key="index">{{ busNo }}</p>
+          <p class="bus-no" v-for="(busNo, index) in busList" :key="index">
+            {{ busNo }}
+          </p>
         </div>
         <div class="content" v-else>없음</div>
       </div>
+      <!-- 지하철 정보 -->
       <div class="subway-info">
         <div class="header">
           <img src="../assets/icon/transport/bus.png" alt="icon" class="icon" />
@@ -27,11 +32,10 @@
       </div>
     </div>
   </section>
+  <!-- 로딩 중일 때 -->
   <section class="transport-box" v-else>
     <p class="title">주변 교통정보</p>
-    <div class="loader-wrapper">
-      <Loader />
-    </div>
+    <Loader class="loader-wrapper" />
   </section>
 </template>
 
@@ -41,21 +45,21 @@ import Loader from "@/components/Loader.vue";
 export default {
   name: "Transport",
   props: {
-    transportData: null
+    transportData: null,
   },
   components: {
-    Loader
+    Loader,
   },
   data: function() {
     return {
       busList: [],
       subwayList: [],
-      nowLoading: true
+      nowLoading: true,
     };
   },
   watch: {
     transportData: function() {
-      // early return
+      // early return. props 데이터 유효성 체크
       if (!this.transportData.result) {
         this.nowLoading = false;
         return;
@@ -66,27 +70,27 @@ export default {
 
       // extract bus number list
       this.busInfo = this.transportData.result.lane.filter(
-        stn => stn.stationClass == 1
+        (stn) => stn.stationClass === 1
       );
       for (const busInfo of this.busInfo) {
         for (const bus of busInfo.busList) {
           if (!this.busList.includes(bus.busNo)) this.busList.push(bus.busNo);
         }
       }
-      this.busList.sort((a, b) => a.length - b.length);
+      this.busList.sort((a, b) => a.length - b.length); // 추가설명
 
       // extract subway line list
       this.subwayInfo = this.transportData.result.lane.filter(
-        stn => stn.stationClass == 2
+        (stn) => stn.stationClass === 2
       );
       for (const subwayInfo of this.subwayInfo) {
         this.subwayList.push({
           line: subwayInfo.subwayLaneType,
-          name: subwayInfo.stationName
+          name: subwayInfo.stationName,
         });
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
