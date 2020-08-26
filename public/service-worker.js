@@ -7,6 +7,7 @@ workbox.routing.registerRoute(/.*\.js/, workbox.strategies.networkFirst());
 workbox.routing.registerRoute(
   /.*\.css/,
   workbox.strategies.staleWhileRevalidate({
+    // 리소스버전이 업데이트 되기 전까지는 구버전 리소스를 사용
     cacheName: "css-cache",
   })
 );
@@ -26,7 +27,7 @@ workbox.routing.registerRoute(
   })
 );
 
-// 웹 폰트 리소스도 캐싱 해 놓는다.
+// 웹 폰트 리소스에는 캐시 우선 전략을 사용한다.
 workbox.routing.registerRoute(
   new RegExp("https://fonts.(?:googleapis|gstatic).com/(.*)"),
   workbox.strategies.cacheFirst({
