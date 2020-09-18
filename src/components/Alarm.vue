@@ -4,15 +4,11 @@
     <section class="address-box">
       <div class="source-box">
         <p class="title">출발지 지정</p>
-        <p class="source" v-on:click="openSearchModal" role="source">
-          터치하여 출발지 검색
-        </p>
+        <p class="source" v-on:click="openSearchModal" role="source">터치하여 출발지 검색</p>
       </div>
       <div class="destination-box">
         <p class="title">도착지 지정</p>
-        <p class="destination" v-on:click="openSearchModal" role="destination">
-          터치하여 도착지 검색
-        </p>
+        <p class="destination" v-on:click="openSearchModal" role="destination">터치하여 도착지 검색</p>
       </div>
     </section>
     <!-- 교통 정보 경로 표시 부분 -->
@@ -23,9 +19,7 @@
         <ul class="path-info-list">
           <li v-for="(path, index) in pathInfo" :key="index">
             <p>
-              <span class="time-estimated"
-                >{{ path.info.totalTime }}분 소요</span
-              >
+              <span class="time-estimated">{{ path.info.totalTime }}분 소요</span>
               {{ path.info.guideMessage }}
             </p>
           </li>
@@ -55,9 +49,7 @@
               :key="index"
               v-on:click="selectHour"
               :value="hour"
-            >
-              {{ hour }}
-            </li>
+            >{{ hour }}</li>
           </ul>
         </div>
         <!-- separator -->
@@ -71,9 +63,7 @@
               :key="index"
               v-on:click="selectMinute"
               :value="minute"
-            >
-              {{ minute }}
-            </li>
+            >{{ minute }}</li>
           </ul>
         </div>
       </div>
@@ -97,10 +87,7 @@
       <!-- 검색 결과 부분 -->
       <Loader class="loader-wrapper" v-if="searchLoading" />
       <div class="content" v-else>
-        <ul
-          class="address-list"
-          v-if="searchList != null && searchList.length != 0"
-        >
+        <ul class="address-list" v-if="searchList != null && searchList.length != 0">
           <li
             class="address-item"
             v-for="(addrObj, index) in searchList"
@@ -124,9 +111,7 @@
       </div>
     </div>
     <!-- Snack Bar -->
-    <SnackBar v-if="snackBarOpen" :isSuccess="isSnackBarSuccess">
-      {{ snackBarMessage }}
-    </SnackBar>
+    <SnackBar v-if="snackBarOpen" :isSuccess="isSnackBarSuccess">{{ snackBarMessage }}</SnackBar>
   </section>
 </template>
 
@@ -150,17 +135,17 @@ export default {
         source: {
           address: null,
           x: null,
-          y: null,
+          y: null
         },
         destination: {
           address: null,
           x: null,
-          y: null,
-        },
+          y: null
+        }
       },
       alarmInfo: {
         hour: null,
-        minute: null,
+        minute: null
       },
       pathInfo: null,
       pathSearching: false,
@@ -173,7 +158,7 @@ export default {
       isSnackBarSuccess: true,
       pathErrorMessage: "",
       showPathError: false,
-      keyUpTimer: null,
+      keyUpTimer: null
     };
   },
   watch: {
@@ -197,14 +182,14 @@ export default {
             SY: info.source.y,
             EX: info.destination.x,
             EY: info.destination.y,
-            apiKey: process.env.VUE_APP_TRANS_API_KEY,
+            apiKey: process.env.VUE_APP_TRANS_API_KEY
           };
           let query = paramsToQuery(params);
           await fetch(URL + PATH + query, {
-            method: "GET",
+            method: "GET"
           })
-            .then((response) => response.json())
-            .then((data) => {
+            .then(response => response.json())
+            .then(data => {
               // 출발지, 도착지 에러 발생 시
               if ("error" in data) {
                 return Promise.reject(data);
@@ -213,14 +198,14 @@ export default {
               this.showPathError = false;
               data = data.result.path;
               this.pathInfo = data.splice(0, 4);
-              this.pathInfo = this.pathInfo.map((path) => {
+              this.pathInfo = this.pathInfo.map(path => {
                 // subPath 중에서 걷는 구간 제외
                 path.subPath = path.subPath.filter(
-                  (subPath) => subPath.trafficType != 3
+                  subPath => subPath.trafficType != 3
                 );
                 // pathInfo 안에 경로 안내 메시지 추가
                 path.info.guideMessage = path.subPath
-                  .map((subPath) => {
+                  .map(subPath => {
                     let guideMessage = "";
                     if (subPath.trafficType === 1) {
                       // 지하철인 경우
@@ -228,7 +213,7 @@ export default {
                     } else if (subPath.trafficType === 2) {
                       // 버스인 경우
                       let bus = subPath.lane
-                        .map((lane) => `[${lane.busNo}번]`)
+                        .map(lane => `[${lane.busNo}번]`)
                         .join(" ");
                       guideMessage = `${bus} 버스로 ${subPath.startName}정류장에서 ${subPath.endName}정류장으로`;
                     }
@@ -238,7 +223,7 @@ export default {
                 return path;
               });
             })
-            .catch((err) => {
+            .catch(err => {
               console.error(err);
               if ("error" in err && "msg" in err.error)
                 this.pathErrorMessage = err.error.msg;
@@ -251,8 +236,8 @@ export default {
         } else {
           return;
         }
-      },
-    },
+      }
+    }
   },
   methods: {
     openSearchModal: function(e) {
@@ -279,12 +264,12 @@ export default {
         }
         const URL = process.env.VUE_APP_API_SERVER;
         const params = {
-          keyword: searchWords,
+          keyword: searchWords
         };
         const query = paramsToQuery(params);
         fetch(URL + "users/address" + query, { method: "GET" })
-          .then((response) => response.json())
-          .then((data) => {
+          .then(response => response.json())
+          .then(data => {
             this.searchList = data.results.juso;
             this.searchLoading = false;
           });
@@ -298,14 +283,14 @@ export default {
       const URL = process.env.VUE_APP_API_SERVER;
       const PATH = "users/geocoding";
       let params = {
-        address: encodeURI(encodeURIComponent(address)),
+        address: encodeURI(encodeURIComponent(address))
       };
       let query = paramsToQuery(params);
       fetch(URL + PATH + query, { method: "GET" })
-        .then((response) => {
+        .then(response => {
           return response.json();
         })
-        .then((data) => {
+        .then(data => {
           const result = JSON.parse(data).addresses;
           // early return
           if (result.length === 0)
@@ -322,7 +307,7 @@ export default {
           this.searchModalOpen = false;
           this.searchList = null;
         })
-        .catch((err) => {
+        .catch(err => {
           console.error(err);
           this.snackBarMessage = "알람에 필요한 정보가 누락되었습니다";
           this.isSnackBarSuccess = false;
@@ -377,16 +362,16 @@ export default {
       const DATA = {
         locationInfo: this.locationInfo,
         alarmInfo: this.alarmInfo,
-        deviceToken: localStorage.getItem("DEVICE_TOKEN"),
+        deviceToken: localStorage.getItem("DEVICE_TOKEN")
       };
       fetch(URL + PATH, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify(DATA),
+        body: JSON.stringify(DATA)
       })
-        .then((response) => {
+        .then(response => {
           if (response.status === 200) {
             this.snackBarMessage = "알람 등록에 성공하였습니다";
             this.isSnackBarSuccess = true;
@@ -399,15 +384,15 @@ export default {
             setTimeout(() => (this.snackBarOpen = false), 5000);
           }
         })
-        .catch((err) => {
+        .catch(err => {
           console.error(err);
           this.snackBarMessage = "알람 등록에 실패하였습니다";
           this.isSnackBarSuccess = false;
           this.snackBarOpen = true;
           setTimeout(() => (this.snackBarOpen = false), 5000);
         });
-    },
-  },
+    }
+  }
 };
 </script>
 
