@@ -1,24 +1,10 @@
-# pwa
+# 현대카드 2020 Summer 인턴십 기간동안 진행한 프로젝트 입니다
 
-## Project setup
-```
-npm install
-```
+## 사용된 기술 스택 및 개념
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+1. PWA
+2. Vue.js
+3. Node.js Express
 
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+## 프로젝트 도메인
+(https://vue-pwa-cc9dd.web.app)
