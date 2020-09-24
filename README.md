@@ -1,4 +1,4 @@
-# 현대카드 2020 Summer 인턴십 
+# PWA Weather Application 
 
 ![screenshot](screenshot.gif)
 
