@@ -1,4 +1,6 @@
-# PWA Weather Application 
+# Jarvis - PWA Weather Application 
+
+> 사용자의 기기가 위치한 장소의 날씨 정보를 제공해주고, 사용자가 설정한 알람 시각에 출발지로부터 도착지까지 가는 최적의 대중교통 정보를 Push Notification 으로 보내줍니다.
 
 ![screenshot](screenshot.gif)
 
